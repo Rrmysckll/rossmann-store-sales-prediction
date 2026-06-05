@@ -42,25 +42,23 @@ cd rossmann-store-sales-prediction
 <img width="1919" height="965" alt="Ekran görüntüsü 2026-06-05 212542" src="https://github.com/user-attachments/assets/c0625c8f-5699-47f1-ba2c-0a82c5bc6d08" />
 <img width="1915" height="964" alt="Ekran görüntüsü 2026-06-05 212601" src="https://github.com/user-attachments/assets/055261ca-98c7-46f6-84d1-970df186afeb" />
 
-*(Sürükle-Bırak: Ana tahmin formunun olduğu ekran görüntüsünü tam buraya sürükleyip bırak)*
 
 ### 2. İş Zekası (Dashboard) Paneli
 <img width="1918" height="954" alt="Ekran görüntüsü 2026-06-05 212644" src="https://github.com/user-attachments/assets/86c71b36-2377-44bd-a498-5899fe7802a2" />
 <img width="1916" height="955" alt="Ekran görüntüsü 2026-06-05 212623" src="https://github.com/user-attachments/assets/a1cdb20a-e5e4-450e-8945-516791ba788f" />
 
-*(Sürükle-Bırak: İstatistiklerin ve grafiklerin olduğu ekran görüntüsünü tam buraya sürükleyip bırak)*
+
 
 ### 3. Veri Yönetimi
 <img width="1917" height="966" alt="Ekran görüntüsü 2026-06-05 212716" src="https://github.com/user-attachments/assets/0a0587a0-43c0-491d-ac89-e11daf1ee44e" />
 <img width="1918" height="957" alt="Ekran görüntüsü 2026-06-05 212704" src="https://github.com/user-attachments/assets/987eca8a-b4a8-4b6e-b516-4ff8513549e9" />
 
-*(Sürükle-Bırak: Model durumu ve veri tablolarının olduğu ekran görüntüsünü tam buraya sürükleyip bırak)*
+
 
 ### 3. Mağazalar
 <img width="1916" height="963" alt="Ekran görüntüsü 2026-06-05 212745" src="https://github.com/user-attachments/assets/149e2abc-599f-4f1f-9400-22dc576026a6" />
 <img width="1919" height="955" alt="Ekran görüntüsü 2026-06-05 212732" src="https://github.com/user-attachments/assets/e92b8347-21b8-427b-affe-32e5b65278ae" />
 
-*(Sürükle-Bırak: Model durumu ve veri tablolarının olduğu ekran görüntüsünü tam buraya sürükleyip bırak)*
 
 
 ## 💡 API Kullanımı (Örnek)
