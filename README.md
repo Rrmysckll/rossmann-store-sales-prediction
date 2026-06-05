@@ -32,7 +32,7 @@ Projeyi kendi ortamınızda test etmek için sisteminizde Docker'ın kurulu olma
 
 **1. Depoyu Klonlayın:**
 ```bash
-git clone [https://github.com/KULLANICI_ADIN/rossmann-store-sales-prediction.git](https://github.com/KULLANICI_ADIN/rossmann-store-sales-prediction.git)
+git clone https://github.com/Rrmysckll/rossmann-store-sales-prediction.git
 cd rossmann-store-sales-prediction
 
 
