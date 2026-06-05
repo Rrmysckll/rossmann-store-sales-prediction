@@ -35,6 +35,14 @@ Projeyi kendi ortamınızda test etmek için sisteminizde Docker'ın kurulu olma
 git clone https://github.com/Rrmysckll/rossmann-store-sales-prediction.git
 cd rossmann-store-sales-prediction
 ```
+**2.Docker İmajını İnşa Edin:**
+   ```bash
+   docker build -t retail-ai-app .
+   ```
+**3.Konteyneri Başlatın:**
+ ```bash
+  docker run -d -p 5000:5000 --name retail-container retail-ai-app
+  ```
 
 ## 📸 Ekran Görüntüleri
 
