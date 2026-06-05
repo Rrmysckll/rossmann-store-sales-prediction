@@ -34,7 +34,7 @@ Projeyi kendi ortamınızda test etmek için sisteminizde Docker'ın kurulu olma
 ```bash
 git clone https://github.com/Rrmysckll/rossmann-store-sales-prediction.git
 cd rossmann-store-sales-prediction
-
+```
 
 ## 📸 Ekran Görüntüleri
 
