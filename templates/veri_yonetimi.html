@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rossmann AI - Veri Yönetimi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* KOYU TEMA (VARSAYILAN) */
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #E3000F; /* Rossmann Kırmızısı */
+            --accent-hover: #b3000c;
+            --border: #334155;
+            --success: #10b981;
+            --sidebar-bg: #0b0f19;
+            --info-bg: rgba(227, 0, 15, 0.05);
+        }
+
+        /* AYDINLIK TEMA (LIGHT MODE) */
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #E3000F;
+            --accent-hover: #b3000c;
+            --border: #cbd5e1;
+            --success: #059669;
+            --sidebar-bg: #ffffff;
+            --info-bg: rgba(227, 0, 15, 0.05);
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* Sol Menü */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; gap: 40px; }
+        .logo { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--accent); }
+        .menu-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .menu-item a { display: flex; align-items: center; gap: 15px; color: var(--text-muted); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 500; transition: 0.3s; }
+        .menu-item.active a, .menu-item a:hover { background-color: var(--bg-main); color: var(--accent); }
+
+        /* Tema Değiştirme Butonu */
+        .theme-toggle {
+            margin-top: auto;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        .theme-toggle:hover { background-color: var(--bg-main); color: var(--accent); }
+
+        /* Ana İçerik */
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .header { margin-bottom: 35px; }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .header p { color: var(--text-muted); font-size: 14px; }
+
+        /* Kart Metrikleri (4'lü Grid) */
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 30px; }
+        .metric-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 10px; border-left: 4px solid var(--accent); }
+        .metric-title { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+        .metric-value { font-size: 28px; font-weight: 700; color: var(--text-main); }
+        .metric-icon { font-size: 24px; color: var(--accent); margin-bottom: 5px; }
+
+        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; margin-bottom: 25px;}
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+
+        /* Aksiyon Butonları */
+        .action-btn { background-color: var(--bg-main); color: var(--text-main); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-weight: 500;}
+        .action-btn:hover { background-color: var(--accent); color: white; }
+
+        .btn-export { display: inline-flex; align-items: center; gap: 10px; background-color: #f59e0b; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s; }
+        .btn-export:hover { filter: brightness(0.9); color: white; }
+    </style>
+
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    </script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-chart-line"></i>
+            <div>Rossmann<span>AI</span></div>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i> Genel Bakış</a></li>
+            <li class="menu-item"><a href="/"><i class="fa-solid fa-gauge"></i> Satış Tahmini</a></li>
+            <li class="menu-item"><a href="/magazalar"><i class="fa-solid fa-store"></i> Mağazalar</a></li>
+            <li class="menu-item active"><a href="/veri_yonetimi"><i class="fa-solid fa-database"></i> Veri Yönetimi</a></li>
+        </ul>
+
+        <div class="theme-toggle" onclick="temaDegistir()">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+            <span id="theme-text">Gece Modu</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Sistem Analitiği ve Veri Yönetimi</h1>
+            <p>Yapay zeka modelinin sağlık durumunu ve veritabanı yoğunluğunu bu panelden anlık olarak takip edebilirsiniz.</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card" style="border-left-color: var(--success);">
+                <i class="fa-solid fa-server metric-icon" style="color: var(--success);"></i>
+                <div class="metric-title">Model Durumu</div>
+                <div class="metric-value">Çevrimiçi</div>
+            </div>
+
+            <div class="metric-card">
+                <i class="fa-solid fa-database metric-icon"></i>
+                <div class="metric-title">Veritabanı Satır Sayısı</div>
+                <div class="metric-value">{{ stats.magaza_sayisi }}</div>
+            </div>
+
+            <div class="metric-card">
+                <i class="fa-solid fa-bullseye metric-icon"></i>
+                <div class="metric-title">Model Optimizasyon Kaybı (RMSE)</div>
+                <div class="metric-value">{{ stats.rmse }}</div>
+            </div>
+
+            <div class="metric-card">
+                <i class="fa-solid fa-file-code metric-icon"></i>
+                <div class="metric-title">Yapay Zeka Beyin Boyutu</div>
+                <div class="metric-value">{{ stats.model_boyutu }} MB</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-microchip"></i> Sistem Motoru Bilgileri
+            </div>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 14px; margin-bottom: 20px;">
+                Bu sistem arka planda Python tabanlı <strong>{{ stats.algoritma }}</strong> algoritmasını kullanmaktadır.
+                Gelişmiş karar ağaçları altyapısıyla eğitilen modelimiz (rossmann_model.json), yüz binlerce satırlık satış geçmişini öğrenerek Flask mimarisi üzerinden bu arayüze anlık tahminler sunmaktadır. Veritabanı sorguları ise gömülü SQLite motoru üzerinden asenkron olarak işlenmektedir.
+            </p>
+
+            <div style="display: flex; gap: 15px;">
+                <button class="action-btn" onclick="alert('Uyarı: Model yeniden eğitim süreci yüksek donanım gücü gerektirir. Lütfen yetkili yönetici şifrenizi giriniz.')">
+                    <i class="fa-solid fa-rotate"></i> Modeli Yeniden Eğit
+                </button>
+                <a href="/api/export_csv" class="btn-export">
+                    <i class="fa-solid fa-download"></i> Tüm Veritabanını Dışa Aktar (CSV)
+                </a>
+                <button class="action-btn" onclick="alert('Sistem logları başarıyla indirildi.')">
+                    <i class="fa-solid fa-file-lines"></i> Sistem Loglarını İndir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- TEMA YÖNETİMİ ---
+        const htmlElement = document.documentElement;
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        // Sayfa yüklendiğinde sadece butonun ikonunu ve yazısını düzelt
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+            themeText.innerText = 'Gündüz Modu';
+        }
+
+        // Butona Tıklama Fonksiyonu
+        function temaDegistir() {
+            if (htmlElement.getAttribute('data-theme') === 'light') {
+                htmlElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                themeText.innerText = 'Gece Modu';
+            } else {
+                htmlElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeText.innerText = 'Gündüz Modu';
+            }
+        }
+    </script>
+</body>
+</html>

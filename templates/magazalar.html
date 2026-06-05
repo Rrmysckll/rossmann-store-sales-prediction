@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rossmann AI - Mağazalar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* Modern CSS Değişkenleri - KOYU TEMA (VARSAYILAN) */
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #E3000F; /* Rossmann Kırmızısı */
+            --accent-hover: #b3000c;
+            --border: #334155;
+            --success: #10b981;
+            --sidebar-bg: #0b0f19;
+            --info-bg: rgba(227, 0, 15, 0.05);
+        }
+
+        /* AYDINLIK TEMA (LIGHT MODE) */
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #E3000F;
+            --accent-hover: #b3000c;
+            --border: #cbd5e1;
+            --success: #059669;
+            --sidebar-bg: #ffffff;
+            --info-bg: rgba(227, 0, 15, 0.05);
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* Sol Menü */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; gap: 40px; }
+        .logo { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--accent); }
+        .menu-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .menu-item a { display: flex; align-items: center; gap: 15px; color: var(--text-muted); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 500; transition: 0.3s; }
+        .menu-item.active a, .menu-item a:hover { background-color: var(--bg-main); color: var(--accent); }
+
+        /* Tema Değiştirme Butonu */
+        .theme-toggle {
+            margin-top: auto;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        .theme-toggle:hover { background-color: var(--bg-main); color: var(--accent); }
+
+        /* Ana İçerik */
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .header { margin-bottom: 35px; }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .header p { color: var(--text-muted); font-size: 14px; }
+
+        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; }
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+
+        /* Veri Tablosu Tasarımı */
+        .table-container { max-height: 600px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background-color: var(--bg-main); color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 15px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); }
+        tr:hover { background-color: var(--info-bg); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; background-color: var(--border); color: var(--text-main); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-card); }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Butonlar */
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+        .btn-edit { background-color: #3b82f6; color: white; margin-right: 5px; }
+        .btn-edit:hover { background-color: #2563eb; }
+        .btn-delete { background-color: #ef4444; color: white; }
+        .btn-delete:hover { background-color: #dc2626; }
+        .btn-add { background-color: var(--success); color: white; padding: 10px 20px; border-radius: 6px; font-size: 14px; }
+        .btn-add:hover { filter: brightness(0.9); }
+
+        /* MODAL TASARIMI */
+        .modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-box {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            width: 450px; border-radius: 12px; padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--text-main); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        .form-control { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background-color: var(--bg-main); color: var(--text-main); font-family: 'Inter'; outline: none; transition: border-color 0.3s; }
+        .form-control:focus { border-color: var(--accent); }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .btn-cancel { background-color: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-cancel:hover { background-color: var(--bg-main); color: var(--text-main); }
+        .btn-save { background-color: var(--accent); color: white; }
+        .btn-save:hover { background-color: var(--accent-hover); }
+    </style>
+
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    </script>
+</head>
+<body>
+
+    <div id="crudModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header" id="modalTitle">Yeni Mağaza Ekle</div>
+            <form id="crudForm">
+                <input type="hidden" id="actionType" value="add">
+
+                <div class="form-group" id="storeIdGroup">
+                    <label>Mağaza ID Numarası</label>
+                    <input type="number" id="storeId" class="form-control" required placeholder="Örn: 1116">
+                </div>
+
+                <div class="form-group">
+                    <label>Mağaza Konsepti</label>
+                    <select id="storeType" class="form-control" required>
+                        <option value="1">Model A (Şehir Merkezi)</option>
+                        <option value="2">Model B (Yüksek Sirkülasyon)</option>
+                        <option value="3">Model C (Orta Boy)</option>
+                        <option value="4">Model D (Büyük/Şehir Dışı)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ürün Çeşitlilik Seviyesi</label>
+                    <select id="assortment" class="form-control" required>
+                        <option value="1">Temel Ürünler (a)</option>
+                        <option value="2">Ekstra Ürünler (b)</option>
+                        <option value="3">Genişletilmiş Kapsam (c)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>En Yakın Rakip Uzaklığı (Metre)</label>
+                    <input type="number" id="distance" class="form-control" required placeholder="Örn: 1500" step="10">
+                </div>
+
+                <div class="form-group">
+                    <label>Sürekli Promosyon (Promo2)</label>
+                    <select id="promo2" class="form-control" required>
+                        <option value="0">Pasif (Yok)</option>
+                        <option value="1">Aktif (Var)</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="modaliKapat()">İptal</button>
+                    <button type="submit" class="btn btn-save">Sisteme Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-chart-line"></i>
+            <div>Rossmann<span>AI</span></div>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i> Genel Bakış</a></li>
+            <li class="menu-item"><a href="/"><i class="fa-solid fa-gauge"></i> Satış Tahmini</a></li>
+            <li class="menu-item active"><a href="/magazalar"><i class="fa-solid fa-store"></i> Mağazalar</a></li>
+            <li class="menu-item"><a href="/veri_yonetimi"><i class="fa-solid fa-database"></i> Veri Yönetimi</a></li>
+        </ul>
+
+        <div class="theme-toggle" onclick="temaDegistir()">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+            <span id="theme-text">Gece Modu</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Veritabanı: Mağaza Kayıtları</h1>
+            <p>Sistemde kayıtlı olan aktif şubelerin konsept ve rakip analiz verileri listelenmektedir.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-table-list"></i> Aktif Mağaza Veritabanı
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                <button onclick="modaliAc('add')" class="btn btn-add">
+                    <i class="fa-solid fa-plus"></i> Yeni Mağaza Ekle
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mağaza ID</th>
+                            <th>Mağaza Tipi</th>
+                            <th>Ürün Çeşitliliği</th>
+                            <th>Rakip Uzaklığı (Metre)</th>
+                            <th>Sürekli Promosyon</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for magaza in magazalar %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--accent);">#{{ magaza['Store'] }}</td>
+                            <td><span class="badge">Model {{ magaza['StoreType']|upper }}</span></td>
+                            <td><span class="badge">{{ magaza['Assortment']|upper }} Seviye</span></td>
+                            <td>{{ magaza['CompetitionDistance'] }} m</td>
+                            <td>
+                                {% if magaza['Promo2'] == 1 %}
+                                    <span style="color: var(--success); font-weight: 600;"><i class="fa-solid fa-check"></i> Aktif</span>
+                                {% else %}
+                                    <span style="color: #ef4444; font-weight: 600;"><i class="fa-solid fa-xmark"></i> Pasif</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button onclick="modaliAc('edit', {{ magaza['Store'] }}, '{{ magaza['StoreType'] }}', '{{ magaza['Assortment'] }}', {{ magaza['CompetitionDistance'] }}, {{ magaza['Promo2'] }})" class="btn btn-edit">
+                                    <i class="fa-solid fa-pen"></i> Düzenle
+                                </button>
+                                <button onclick="magazaSil({{ magaza['Store'] }})" class="btn btn-delete">
+                                    <i class="fa-solid fa-trash"></i> Sil
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- TEMA YÖNETİMİ ---
+        const htmlElement = document.documentElement;
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        // Sayfa yüklendiğinde sadece butonun ikonunu ve yazısını düzelt
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+            themeText.innerText = 'Gündüz Modu';
+        }
+
+        // Butona Tıklama Fonksiyonu
+        function temaDegistir() {
+            if (htmlElement.getAttribute('data-theme') === 'light') {
+                htmlElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                themeText.innerText = 'Gece Modu';
+            } else {
+                htmlElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeText.innerText = 'Gündüz Modu';
+            }
+        }
+
+        // --- MODAL (EKLE/GÜNCELLE) MANTIĞI ---
+        const modal = document.getElementById('crudModal');
+        const form = document.getElementById('crudForm');
+
+        function modaliAc(action, storeId = '', storeType = '1', assortment = '1', distance = '', promo2 = '0') {
+            document.getElementById('actionType').value = action;
+
+            if (action === 'add') {
+                document.getElementById('modalTitle').innerText = 'Yeni Mağaza Ekle';
+                document.getElementById('storeIdGroup').style.display = 'block';
+                form.reset();
+                document.getElementById('storeType').value = '1';
+                document.getElementById('assortment').value = '1';
+                document.getElementById('promo2').value = '0';
+            } else {
+                document.getElementById('modalTitle').innerText = storeId + ' Numaralı Mağazayı Düzenle';
+                document.getElementById('storeIdGroup').style.display = 'none';
+                document.getElementById('storeId').value = storeId;
+
+                document.getElementById('distance').value = distance;
+                document.getElementById('promo2').value = promo2;
+
+                const typeMap = {'a': '1', 'b': '2', 'c': '3', 'd': '4', '1':'1', '2':'2', '3':'3', '4':'4'};
+                document.getElementById('storeType').value = typeMap[storeType] || '1';
+                document.getElementById('assortment').value = typeMap[assortment] || '1';
+            }
+            modal.style.display = 'flex';
+        }
+
+        function modaliKapat() {
+            modal.style.display = 'none';
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const action = document.getElementById('actionType').value;
+            const storeId = document.getElementById('storeId').value;
+
+            const payload = {
+                Store: parseInt(storeId),
+                StoreType: parseInt(document.getElementById('storeType').value),
+                Assortment: parseInt(document.getElementById('assortment').value),
+                CompetitionDistance: parseFloat(document.getElementById('distance').value),
+                Promo2: parseInt(document.getElementById('promo2').value)
+            };
+
+            const endpoint = action === 'add' ? '/api/magaza_ekle' : `/api/magaza_guncelle/${storeId}`;
+            const method = action === 'add' ? 'POST' : 'PUT';
+
+            fetch(endpoint, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert("İşlem Başarısız: " + data.message);
+                }
+            })
+            .catch(error => console.error('Hata:', error));
+        });
+
+        function magazaSil(storeId) {
+            if (confirm(storeId + " numaralı mağazayı veritabanından kalıcı olarak silmek istediğinize emin misiniz?")) {
+                fetch(`/api/magaza_sil/${storeId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') location.reload();
+                    else alert("Hata: " + data.message);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

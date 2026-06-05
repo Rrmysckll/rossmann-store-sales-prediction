@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rossmann AI - Talep Tahmin Paneli</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* Modern CSS Değişkenleri - KOYU TEMA (VARSAYILAN) */
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #E3000F; /* Rossmann Kırmızısı */
+            --accent-hover: #b3000c;
+            --border: #334155;
+            --success: #10b981;
+            --sidebar-bg: #0b0f19;
+            --info-bg: rgba(227, 0, 15, 0.05); /* Kırmızımsı saydam arka plan */
+        }
+
+        /* AYDINLIK TEMA (LIGHT MODE) */
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #E3000F;
+            --accent-hover: #b3000c;
+            --border: #cbd5e1;
+            --success: #059669;
+            --sidebar-bg: #ffffff;
+            --info-bg: rgba(227, 0, 15, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease; /* Yumuşak tema geçişi */
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sol Menü (Sidebar) */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-item a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item.active a, .menu-item a:hover {
+            background-color: var(--bg-main);
+            color: var(--accent);
+        }
+
+        /* Tema Değiştirme Butonu */
+        .theme-toggle {
+            margin-top: auto;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-main);
+            color: var(--accent);
+        }
+
+        /* Ana İçerik Alanı */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header { margin-bottom: 35px; }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .header p { color: var(--text-muted); font-size: 14px; }
+
+        /* Dashboard Düzeni (Grid) */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent);
+        }
+
+        /* Form Elemanları Tasarımı */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full-width { grid-column: span 2; }
+
+        label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+
+        input[type="number"], input[type="date"], select {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus { border-color: var(--accent); }
+
+        /* Switch/Toggle Buton Menüsü */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-main);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .btn-predict {
+            grid-column: span 2;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-predict:hover { background-color: var(--accent-hover); }
+
+        /* Sağ Taraf: Sonuç Ekranı */
+        .result-side { display: flex; flex-direction: column; gap: 30px; }
+
+        .result-display {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border);
+        }
+
+        .result-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--success);
+            margin: 15px 0;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .info-box {
+            display: flex;
+            gap: 15px;
+            background-color: var(--info-bg);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .info-box i { color: var(--accent); font-size: 18px; margin-top: 2px; }
+    </style>
+
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    </script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-chart-line"></i>
+            <div>Rossmann<span>AI</span></div>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i> Genel Bakış</a></li>
+            <li class="menu-item active"><a href="#"><i class="fa-solid fa-gauge"></i> Satış Tahmini</a></li>
+            <li class="menu-item"><a href="/magazalar"><i class="fa-solid fa-store"></i> Mağazalar</a></li>
+            <li class="menu-item"><a href="/veri_yonetimi"><i class="fa-solid fa-database"></i> Veri Yönetimi</a></li>
+        </ul>
+
+        <div class="theme-toggle" onclick="temaDegistir()">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+            <span id="theme-text">Gece Modu</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Talep Tahmin Otomasyonu</h1>
+            <p>Mağaza özelliklerini ve tarihsel dinamikleri seçerek yapay zeka tabanlı ciro tahmini üretin.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-sliders"></i> Tahmin Parametreleri</div>
+
+                <form class="form-grid" action="/" method="POST">
+                    <div class="form-group">
+                        <label for="store_id">Mağaza Numarası (ID)</label>
+                        <input type="number" id="store_id" name="store_id" min="1" max="1115" placeholder="Örn: 5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="predict_date">Tahmin Tarihi</label>
+                        <input type="date" id="predict_date" name="predict_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="store_type">Mağaza Konsepti (Type)</label>
+                        <select id="store_type" name="store_type">
+                            <option value="0">Model A (Şehir Merkezi)</option>
+                            <option value="1">Model B (Büyük Ölçekli)</option>
+                            <option value="2">Model C (Standart Mahalle)</option>
+                            <option value="3">Model D (Geniş Ürün Çeşitli)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assortment">Ürün Çeşitlilik Seviyesi</label>
+                        <select id="assortment" name="assortment">
+                            <option value="0">Temel Ürünler (Basic)</option>
+                            <option value="1">Gelişmiş Seviye (Extra)</option>
+                            <option value="2">Tam Kapsam (Extended)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="comp_dist">En Yakın Rakip Mağaza Uzaklığı (Metre)</label>
+                        <input type="number" id="comp_dist" name="comp_dist" placeholder="Örn: 1270">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label>Aktif Promosyon Var mı?</label>
+                            <label class="switch">
+                                <input type="checkbox" name="promo" value="1">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label>Okul Tatili mi?</label>
+                            <label class="switch">
+                                <input type="checkbox" name="school_holiday" value="1">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-predict">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Satış Hacmini Tahmin Et
+                    </button>
+                </form>
+            </div>
+
+            <div class="result-side">
+                <div class="card result-display">
+                    <div class="card-title" style="justify-content: center; margin-bottom: 10px;">
+                        <i class="fa-solid fa-bullseye"></i> ANALİZ ÇIKTISI
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 13px;">Seçilen Şartlarda Öngörülen Değer</p>
+
+                    <div class="result-value">
+                        {% if prediction %}
+                            {{ prediction }} €
+                        {% else %}
+                            -- €
+                        {% endif %}
+                    </div>
+
+                    <p style="color: var(--text-muted); font-size: 12px;">XGBoost Regressor ile anlık hesaplanmıştır.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-circle-info"></i> Sistem Mimarisi Notları
+                    </div>
+                    <div class="info-box">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <div>
+                            <strong>Veri Entegrasyonu:</strong> Bu panel arka planda çalışan ilişkisel SQLite veritabanı mimarisiyle entegre edilmiştir. Formdan gönderilen dinamik parametreler, eğitilmiş yapay zeka modeline beslenerek karar mekanizmasını tetikler.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- TEMA YÖNETİMİ ---
+        const htmlElement = document.documentElement;
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        // Sayfa yüklendiğinde sadece butonun ikonunu ve yazısını düzelt
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+            themeText.innerText = 'Gündüz Modu';
+        }
+
+        // Butona Tıklama Fonksiyonu
+        function temaDegistir() {
+            if (htmlElement.getAttribute('data-theme') === 'light') {
+                htmlElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                themeText.innerText = 'Gece Modu';
+            } else {
+                htmlElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeText.innerText = 'Gündüz Modu';
+            }
+        }
+    </script>
+</body>
+</html>
