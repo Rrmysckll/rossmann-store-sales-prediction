@@ -6,7 +6,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)
 ![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite)
 
-Büyük ölçekli bir perakende zincirinin geçmiş satış dinamiklerini ve mağaza özelliklerini kullanarak, gelecekteki ciro hacmini öngören yapay zeka destekli tam yığın (full-stack) web uygulamasıdır. 
+Büyük ölçekli bir perakende zincirinin geçmiş satış dinamiklerini ve mağaza özelliklerini kullanarak, gelecekteki ciro hacmini öngören yapay zeka destekli tam yığın (full-stack) web uygulamasıdır. 
 
 Proje, yalnızca bir veri bilimi modeli olmakla kalmayıp; kendi veritabanına sahip, REST API uç noktaları barındıran ve **Docker** ile kapsayıcı mimarisinde (containerized) çalışmaya hazır kurumsal bir mikroservis olarak tasarlanmıştır.
 
@@ -32,5 +32,52 @@ Projeyi kendi ortamınızda test etmek için sisteminizde Docker'ın kurulu olma
 
 **1. Depoyu Klonlayın:**
 ```bash
-git clone [https://github.com/KULLANICI_ADIN/rossmann-store-sales-prediction.git](https://github.com/KULLANICI_ADIN/rossmann-store-sales-prediction.git)
+git clone https://github.com/Rrmysckll/rossmann-store-sales-prediction.git
 cd rossmann-store-sales-prediction
+```
+**2.Docker İmajını İnşa Edin:**
+   ```bash
+   docker build -t retail-ai-app .
+   ```
+**3.Konteyneri Başlatın:**
+ ```bash
+  docker run -d -p 5000:5000 --name retail-container retail-ai-app
+  ```
+
+## 📸 Ekran Görüntüleri
+
+### 1. Satış Tahmin Ekranı
+<img width="1919" height="965" alt="Ekran görüntüsü 2026-06-05 212542" src="https://github.com/user-attachments/assets/c0625c8f-5699-47f1-ba2c-0a82c5bc6d08" />
+<img width="1915" height="964" alt="Ekran görüntüsü 2026-06-05 212601" src="https://github.com/user-attachments/assets/055261ca-98c7-46f6-84d1-970df186afeb" />
+
+
+### 2. İş Zekası (Dashboard) Paneli
+<img width="1918" height="954" alt="Ekran görüntüsü 2026-06-05 212644" src="https://github.com/user-attachments/assets/86c71b36-2377-44bd-a498-5899fe7802a2" />
+<img width="1916" height="955" alt="Ekran görüntüsü 2026-06-05 212623" src="https://github.com/user-attachments/assets/a1cdb20a-e5e4-450e-8945-516791ba788f" />
+
+
+
+### 3. Veri Yönetimi
+<img width="1917" height="966" alt="Ekran görüntüsü 2026-06-05 212716" src="https://github.com/user-attachments/assets/0a0587a0-43c0-491d-ac89-e11daf1ee44e" />
+<img width="1918" height="957" alt="Ekran görüntüsü 2026-06-05 212704" src="https://github.com/user-attachments/assets/987eca8a-b4a8-4b6e-b516-4ff8513549e9" />
+
+
+
+### 3. Mağazalar
+<img width="1916" height="963" alt="Ekran görüntüsü 2026-06-05 212745" src="https://github.com/user-attachments/assets/149e2abc-599f-4f1f-9400-22dc576026a6" />
+<img width="1919" height="955" alt="Ekran görüntüsü 2026-06-05 212732" src="https://github.com/user-attachments/assets/e92b8347-21b8-427b-affe-32e5b65278ae" />
+
+
+
+## 💡 API Kullanımı (Örnek)
+
+Sistem dışarıya REST API desteği sunmaktadır. Yeni bir mağaza eklemek için örnek JSON isteği:
+```json
+POST /api/magaza_ekle
+{
+    "Store": 1116,
+    "StoreType": 1,
+    "Assortment": 3,
+    "CompetitionDistance": 1250,
+    "Promo2": 1
+}     
